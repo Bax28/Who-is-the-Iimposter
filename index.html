@@ -1,0 +1,187 @@
+<!DOCTYPE html><html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Who’s the Impostor?</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+      background-color: #f2c2c2;
+      color: #c43939;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: #0000FF;
+      color: white;
+      cursor: pointer;
+    }
+    select, input {
+      padding: 8px;
+      font-size: 16px;
+      margin: 10px;
+    }
+    #game, #wordScreen {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Wer ist der Impostor?</h1>
+  <div id="setup">
+    <label>Thema wählen:</label><br />
+    <select id="genre">
+      <option value="unterhaltung">Unterhaltung</option>
+      <option value="sport">Sport & Freizeit</option>
+      <option value="tiere">Tiere & Natur</option>
+      <option value="essen">Essen & Trinken</option>
+      <option value="schule">Schule & Arbeit</option>
+      <option value="allgemein">Allgemein</option>
+    </select><br /><br />
+    <label>Wie viele Spieler?</label><br />
+    <input type="number" id="numPlayers" min="3" max="20" value="5" /><br /><br />
+    <label>Wie viele Impostors?</label><br />
+    <input type="number" id="numImpostors" min="1" max="5" value="1" /><br /><br />
+    <button onclick="startGame()">Spiel starten</button>
+  </div>  <div id="game">
+    <p id="playerInfo"></p>
+    <button onclick="showWord()">Wort anzeigen</button>
+  </div>  <div id="wordScreen">
+    <p id="wordText" style="font-size: 24px; font-weight: bold;"></p>
+    <button onclick="nextPlayer()">Nächster Spieler</button>
+  </div>  <script>
+    const wordPools = {
+      unterhaltung: [
+        "Netflix","YouTube","TikTok","Instagram","Spotify","Disney+","Twitch","Kino","Kinoabend",
+        "Marvel","Avengers","Star Wars","Harry Potter","Herr der Ringe","Wednesday","Squid Game",
+        "Breaking Bad","Freunde","Simpsons","Family Guy",
+        "South Park","Minecraft","Fortnite","Roblox","Among Us","Call of Duty","FIFA","GTA","Mario","Pokémon",
+        "PlayStation","Xbox","Nintendo","Switch","PC","Handyspiel","App","WhatsApp","Discord","Chat",
+        "Livestream","Influencer","Meme","LOL","Reels","Story","Like","Kommentar","Follower","Hashtag","Filter","Vlog",
+        "Podcast","True Crime","Musikvideo","Charts","Rap","Hip-Hop","Pop","Rock","Billie Eilish","Taylor Swift","Drake",
+        "Ed Sheeran","Beyoncé","Eminem","BTS","K-Pop","Konzert","Festival","Coachella","Tomorrowland","Gamescom","Comic-Con",
+        "Kino-Trailer","Premiere","Serienmarathon","Binge-Watching","Popcorn","Soundtrack","Gaming-Stuhl","Controller","VR-Brille",
+        "Escape Room","Freizeitpark","Achterbahn","Lasertag","Bowling","Karaoke","Tanzvideo","Challenge"
+      ],
+      sport: [
+        "Fußball","Basketball","Tennis","Volleyball","Handball","Baseball","Rugby","Boxen","Schwimmen","Laufen","Joggen",
+        "Radfahren","Reiten","Wandern","Klettern","Skifahren","Snowboarden","Eislaufen","Surfen","Tauchen","Yoga",
+        "Pilates","Fitness","Krafttraining","Gymnastik","Aerobic","Zumba","Tanzen","Skateboard","Inlineskaten","Parkour",
+        "Bouldern","Tischtennis","Badminton","Squash","Golf","Bowling","Dart","Billard","Segeln","Rudern","Kanu","Kajak",
+        "Angeln","Bogenschießen","Fechten","Judo","Karate","Taekwondo","Boxtraining","Ringen","Triathlon","Marathon",
+        "Sprint","Hürdenlauf","Weitsprung","Hochsprung","Speerwurf","Diskus","Kugelstoß","Leichtathletik","Turnen","Trampolin",
+        "Crossfit","Parcours","Fitnessstudio","Sportplatz","Stadion","Schwimmbad","Freibad","Bergsteigen","Nordic-Walking",
+        "Slackline","Seilspringen","Tischkicker","Kicker","Paintball","Lasertag","Motorsport","Kart","BMX","Mountainbike",
+        "E-Bike","Scooter","Roller","Pferdesport","Tanzkurs","Tretboot","Minigolf","Freizeitpark","Zoobesuch","Picknick",
+        "Campen","Zelten","Grillen","Wandertour","Spielplatz","Radtour","Spaziergang","Outdoor","Abenteuer","Bewegung"
+      ],
+      tiere: [
+        "Hund","Katze","Maus","Vogel","Fisch","Pferd","Kuh","Schwein","Schaf","Ziege","Huhn","Ente","Gans","Esel",
+        "Hase","Kaninchen","Igel","Bär","Löwe","Tiger","Elefant","Affe","Giraffe","Zebra","Krokodil","Nilpferd","Panda",
+        "Koala","Pinguin","Delfin","Wal","Hai","Fuchs","Wolf","Reh","Hirsch","Dachs","Waschbär","Eichhörnchen","Kröte",
+        "Frosch","Schlange","Eidechse","Schildkröte","Spinne","Käfer","Biene","Wespe","Hummel","Ameise","Schmetterling",
+        "Mücke","Libelle","Marienkäfer","Taube","Rabe","Amsel","Spatz","Storch","Schwan","Adler","Falke","Möwe","Kranich",
+        "Papagei","Wellensittich","Kaktus","Baum","Busch","Strauch","Blume","Rose","Tulpe","Sonnenblume","Gras","Moos","Blatt",
+        "Ast","Wurzel","Eiche","Buche","Birke","Tanne","Fichte","Wald","Wiese","Feld","Berg","Tal","See","Teich","Fluss",
+        "Bach","Meer","Ozean","Insel","Stein","Sand","Erde","Himmel","Wolke","Regen","Schnee","Sonne","Wind"
+      ],
+      essen: [
+        "Brot","Brötchen","Butter","Käse","Wurst","Schinken","Ei","Joghurt","Quark","Milch","Sahne","Käsekuchen",
+        "Apfel","Banane","Birne","Orange","Mandarine","Zitrone","Kiwi","Traube","Erdbeere","Himbeere","Blaubeere",
+        "Melone","Ananas","Mango","Pfirsich","Kirsche","Apfelmus","Müsli","Cornflakes","Toast","Nudeln","Spaghetti",
+        "Lasagne","Reis","Kartoffel","Pommes","Bratkartoffeln","Suppe","Eintopf","Salat","Tomate","Gurke","Paprika",
+        "Zwiebel","Knoblauch","Möhre","Brokkoli","Blumenkohl","Spinat","Pizza","Burger","Döner","Sandwich","Hotdog",
+        "Steak","Schnitzel","Frikadelle","Würstchen","Hähnchen","Ente","Fisch","Lachs","Thunfisch","Sushi","Torte",
+        "Kuchen","Keks","Eis","Schokolade","Bonbon","Gummibärchen","Pudding","Muffin","Donut","Zucker","Salz",
+        "Pfeffer","Öl","Essig","Senf","Ketchup","Mayo","Cola","Limo","Wasser","Saft","Apfelsaft","Orangensaft",
+        "Tee","Kaffee","Kakao","Milchshake","Smoothie","Bier","Wein","Sekt","Cocktail","Energy"
+      ],
+      schule: [
+        "Lehrer","Lehrerin","Schüler","Schülerin","Tafel","Kreide","Schwamm","Heft","Buch","Stift","Kuli","Bleistift",
+        "Radiergummi","Lineal","Zirkel","Geodreieck","Füller","Rucksack","Federmappe","Hausaufgabe","Klassenarbeit",
+        "Test","Note","Zeugnis","Pause","Stunde","Stundenplan","Klassenzimmer","Schulglocke","Schulhof","Direktor",
+        "Sporthalle","Turnen","Mathe","Deutsch","Englisch","Bio","Chemie","Physik","Geschichte","Erdkunde","Kunst",
+        "Musik","Religion","Ethik","Computer","Laptop","Tablet","Whiteboard","Projektor","Beamer","Schreibtisch","Stuhl",
+        "Ordner","Arbeitsblatt","Text","Diktat","Aufsatz","Vortrag","Gruppenarbeit","Partnerarbeit","Referat","Prüfung",
+        "Lernen","Lesen","Schreiben","Rechnen","Zeichnen","Malen","Singen","Basteln","Experiment","Versuch","Schulbuch",
+        "Lesebuch","Mathebuch","Schulbus","Schulweg","Unterricht","Schulranzen","Glocke","Pausebrot","Mensa","Lehrerzimmer",
+        "Klassenfahrt","Wandertag","Ausflug","Arbeitszeit","Büro","Chef","Kollegin","Kollege","Besprechung","Telefon",
+        "E-Mail","Drucker","Kopierer","Pause","Bewerbung","Ausbildung"
+      ],
+      allgemein: [
+        "Haus","Wohnung","Zimmer","Tür","Fenster","Tisch","Stuhl","Bett","Schrank","Lampe","Teppich","Fernseher",
+        "Sofa","Sessel","Regal","Spiegel","Küche","Bad","Flur","Garten","Schule","Klassenzimmer","Tafel","Heft",
+        "Buch","Stift","Kuli","Bleistift","Radiergummi","Lineal","Füller","Lehrer","Lehrerin","Schüler","Schülerin",
+        "Freund","Freundin","Klasse","Pause","Aufgabe","Buchstabe","Zahl","Wort","Satz","Sprache","Frage","Antwort",
+        "Spiel","Ball","Auto","Fahrrad","Roller","Bus","Zug","Bahn","Straße","Ampel","Brücke","Weg","Park","Baum",
+        "Blume","Gras","Blatt","Ast","Strauch","Blüte","Wald","Wiese","See","Fluss","Bach","Meer","Berg","Tal",
+        "Stein","Sand","Himmel","Wolke","Regen","Schnee","Sonne","Wind","Stern","Mond","Wetter","Tier","Hund",
+        "Katze","Maus","Fisch","Pferd","Kuh","Schwein","Schaf","Huhn","Vogel","Biene","Schmetterling","Frosch",
+        "Löwe","Elefant","Giraffe","Zoo","Käfig","Futter","Wasser","Napf","Mensch","Kind","Junge","Mädchen","Baby",
+        "Mann","Frau","Vater","Mutter","Bruder","Schwester","Oma","Opa","Familie","Nachbar","Besuch","Name","Alter",
+        "Geburtstag","Jahr","Monat","Woche","Tag","Stunde","Minute","Uhr","Uhrzeit","Morgen","Abend","Nacht","Mittag",
+        "Kleidung","Hose","Shirt","Kleid","Jacke","Mantel","Mütze","Schal","Handschuh","Schuh","Socke","Essen","Trinken",
+        "Frühstück","Mittagessen","Abendessen","Brot","Brötchen","Butter","Käse","Wurst","Suppe","Pizza","Nudeln","Reis",
+        "Kartoffel","Apfel","Banane","Orange","Kirsche","Melone","Kuchen","Torte","Schokolade","Bonbon","Eis","Getränk",
+        "Saft","Milch","Wasser","Tee","Kaffee","Glas","Becher","Tasse","Teller","Schüssel","Löffel","Gabel","Messer",
+        "Topf","Pfanne","Herd","Kühlschrank","Müll","Eimer","Besen","Staub","Tischdecke","Zeitung","Heftklammer","Ordner"
+      ]
+    };
+
+    let roles = [];
+    let currentPlayer = 0;
+    let selectedWord = "";
+
+    function startGame() {
+      const genre = document.getElementById("genre").value;
+      const total = parseInt(document.getElementById("numPlayers").value);
+      const impostors = parseInt(document.getElementById("numImpostors").value);
+      if (impostors >= total) { alert("Impostors müssen weniger als Spieler sein."); return; }
+      const words = wordPools[genre];
+      selectedWord = words[Math.floor(Math.random() * words.length)];
+      roles = Array(total).fill("normal");
+      let impostorIndices = [];
+      while (impostorIndices.length < impostors) {
+        const rand = Math.floor(Math.random() * total);
+        if (!impostorIndices.includes(rand)) impostorIndices.push(rand);
+      }
+      impostorIndices.forEach(i => roles[i] = "impostor");
+      currentPlayer = 0;
+      document.getElementById("setup").style.display = "none";
+      document.getElementById("game").style.display = "block";
+      updatePlayerInfo();
+    }
+
+    function updatePlayerInfo() {
+      document.getElementById("playerInfo").textContent = `Spieler ${currentPlayer + 1}, bereit?`;
+    }
+
+    function showWord() {
+      document.getElementById("game").style.display = "none";
+      document.getElementById("wordScreen").style.display = "block";
+      const role = roles[currentPlayer];
+      document.getElementById("wordText").textContent =
+        role === "impostor" ? "Du bist der Impostor!" : `Dein Wort: ${selectedWord}`;
+    }
+
+    function nextPlayer() {
+      currentPlayer++;
+      if (currentPlayer < roles.length) {
+        document.getElementById("wordScreen").style.display = "none";
+        document.getElementById("game").style.display = "block";
+        updatePlayerInfo();
+      } else {
+        document.body.innerHTML = `
+          <h1>Alle Rollen sind verteilt!</h1>
+          <p>Diskutiert jetzt: Wer ist der Impostor?</p>
+          <button onclick="location.reload()">Erneut spielen</button>
+        `;
+      }
+    }
+  </script></body>
+</html>
