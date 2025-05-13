@@ -1,0 +1,109 @@
+<!DOCTYPE html><html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Emoji Raten</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background-color: #e0f7ff;
+      color: #003366;
+    }
+    #emoji {
+      font-size: 50px;
+      margin: 20px;
+    }
+    #timer {
+      font-size: 24px;
+      margin: 10px;
+      color: #005577;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 10px;
+      background-color: #3399ff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #267ac1;
+    }
+    #answer {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body><h1>Emoji Raten</h1>
+<div id="emoji">❓❓❓</div>
+<div id="timer">30</div>
+<button onclick="showAnswer()">Antwort anzeigen</button>
+<div id="answer"></div>
+<button onclick="nextEmoji()">Nächste Runde</button><script>
+  const emojiList = [
+    { emoji: "⚡🧙‍♂️🧹", answer: "Harry Potter" },
+    { emoji: "🦁👑🌍", answer: "König der Löwen" },
+    { emoji: "❄️👑⛄", answer: "Die Eiskönigin" },
+    { emoji: "🍕🍝🛵", answer: "Italien" },
+    { emoji: "🥨🍺🍗", answer: "Deutschland" },
+    { emoji: "🧀🥖", answer: "Frankreich" },
+    { emoji: "🐉🗺️🏰", answer: "Game of Thrones" },
+    { emoji: "🧱⛏️👾", answer: "Minecraft" },
+    { emoji: "🎮👨‍✈️🔫", answer: "Call of Duty" },
+    { emoji: "⚽🐐", answer: "Lionel Messi" },
+    { emoji: "🎤💃🏽", answer: "Beyoncé" },
+    { emoji: "🗽✈️🗺️", answer: "New York" },
+    { emoji: "🕶️🎸🧔‍♂️", answer: "Elvis Presley" },
+    { emoji: "🌋🌴🏝️", answer: "Hawaii" },
+    { emoji: "🕷️🦸‍♂️🏙️", answer: "Spider-Man" },
+    { emoji: "🚀👩‍🚀🌕", answer: "Mondlandung" },
+    { emoji: "🍣🥢⛩️", answer: "Japan" },
+    { emoji: "🎧🎛️🎶", answer: "DJ" },
+    { emoji: "🎸🔥🎤", answer: "Rockstar" },
+    { emoji: "☀️⛱️🕶️", answer: "Sommerurlaub" },
+    { emoji: "🐧❄️🏔️", answer: "Antarktis" },
+    { emoji: "🦁🎪🤹‍♂️", answer: "Zirkus" },
+    { emoji: "🏀⛹️‍♂️🏆", answer: "Basketball" },
+    { emoji: "🎨🖌️🖼️", answer: "Malen" },
+    { emoji: "🎬📽️⭐", answer: "Hollywood" },
+    { emoji: "⚽🥅👟", answer: "Fußball" },
+    { emoji: "🗼🚄🥐", answer: "Paris" },
+    { emoji: "🌊🔱🐚", answer: "Poseidon" },
+    { emoji: "⚡🏛️🦅", answer: "Zeus" },
+    { emoji: "🐉🥋🏯", answer: "Kung Fu" }
+  ];
+
+  let currentIndex = 0;
+  let timer;
+  let seconds = 30;
+
+  function showEmoji() {
+    document.getElementById("emoji").textContent = emojiList[currentIndex].emoji;
+    document.getElementById("answer").textContent = "";
+    document.getElementById("timer").textContent = "30";
+    seconds = 30;
+    clearInterval(timer);
+    timer = setInterval(() => {
+      seconds--;
+      document.getElementById("timer").textContent = seconds;
+      if (seconds <= 0) clearInterval(timer);
+    }, 1000);
+  }
+
+  function showAnswer() {
+    document.getElementById("answer").textContent = emojiList[currentIndex].answer;
+  }
+
+  function nextEmoji() {
+    currentIndex = (currentIndex + 1) % emojiList.length;
+    showEmoji();
+  }
+
+  // Start mit dem ersten Emoji
+  showEmoji();
+</script></body>
+</html>
